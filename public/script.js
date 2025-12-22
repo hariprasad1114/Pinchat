@@ -3,7 +3,9 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import {
     getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc, serverTimestamp, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+    getAuth, signInAnonymously, setPersistence, browserSessionPersistence
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCssepOWIm1JBzKiDKTQ9g5YkD_XahET7Q",
@@ -43,18 +45,23 @@ let unsubscribeMessages = null;
 let unsubscribeMembers = null;
 let unsubscribeTyping = null;
 
-// Auth
-signInAnonymously(auth).then((userCredential) => {
-    currentUser = userCredential.user;
-    console.log("Signed in anonymously:", currentUser.uid);
-}).catch((error) => {
-    console.error("Auth Error:", error);
-    if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-        alert("CRITICAL ERROR: Anonymous Authentication is NOT enabled in your Firebase Console.\n\nPlease go to Firebase Console > Build > Authentication > Sign-in method > Enable 'Anonymous'.");
-    } else {
-        alert("Authentication Error: " + error.message);
-    }
-});
+// Auth with Session Persistence (Each tab = New User)
+setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+        return signInAnonymously(auth);
+    })
+    .then((userCredential) => {
+        currentUser = userCredential.user;
+        console.log("Signed in anonymously:", currentUser.uid);
+    })
+    .catch((error) => {
+        console.error("Auth Error:", error);
+        if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+            alert("CRITICAL ERROR: Anonymous Authentication is NOT enabled in your Firebase Console.\n\nPlease go to Firebase Console > Build > Authentication > Sign-in method > Enable 'Anonymous'.");
+        } else {
+            alert("Authentication Error: " + error.message);
+        }
+    });
 
 // Event Listeners
 loginForm.addEventListener('submit', (e) => {
