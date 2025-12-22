@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIN Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen active">
+
+            <nav class="login-nav">
+                <div class="nav-logo">PIN Chat</div>
+                <div class="nav-links">
+                    <a href="#how-to-use">How to Use</a>
+                    <a href="#about-us">About Us</a>
+                </div>
+            </nav>
+
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="logo">
+                        <span class="icon">🔒</span>
+                        <h1>PIN Chat</h1>
+                    </div>
+                    <p class="subtitle">Enter a PIN to join a private room.</p>
+
+                    <form id="login-form">
+                        <input type="text" id="username-input" placeholder="Enter Your Name" autocomplete="off"
+                            maxlength="20" required class="input-field">
+                        <input type="text" id="pin-input" placeholder="Enter Room PIN" autocomplete="off" maxlength="10"
+                            required class="input-field">
+                        <button type="submit" class="btn-primary">Join Room</button>
+                    </form>
+                    <p class="disclaimer">Chats are temporary and not saved.</p>
+                </div>
+
+                <div class="info-cards">
+                    <div id="how-to-use" class="glass-card info-card">
+                        <h3>👋 How to Use</h3>
+                        <ul>
+                            <li><strong>1. Enter Name:</strong> Pick a display name.</li>
+                            <li><strong>2. Pick a PIN:</strong> Any number (e.g., 1234).</li>
+                            <li><strong>3. Join:</strong> Click Join Room.</li>
+                            <li><strong>4. Share:</strong> Tell friends the PIN to chat!</li>
+                        </ul>
+                    </div>
+
+                    <div id="about-us" class="glass-card info-card about-card">
+                        <h3>🚀 About Developer</h3>
+                        <div class="dev-profile">
+                            <div class="dev-info">
+                                <h4>M. Hari Prasad Goud</h4>
+                                <p class="dev-role">Co-Founder @ AshaAi</p>
+                                <p class="dev-edu">Student @ KSRM College of Engineering</p>
+                            </div>
+                        </div>
+                        <p class="dev-desc">
+                            Passionate about building connection-driven applications. PIN Chat is designed for privacy
+                            and simplicity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat-screen" class="screen">
+            <header class="chat-header">
+                <div class="header-info">
+                    <span class="room-label">Room:</span>
+                    <span id="room-pin-display" class="room-pin">----</span>
+                    <span class="divider">|</span>
+                    <span id="member-count" class="member-count">0 Members</span>
+                </div>
+                <button id="leave-btn" class="btn-secondary">Leave</button>
+            </header>
+
+            <div id="messages-container" class="messages-area">
+                <!-- Messages will appear here -->
+                <div class="system-message">Welcome to the chat!</div>
+            </div>
+
+            <div id="typing-indicator" class="typing-indicator"></div>
+
+            <form id="chat-form" class="chat-input-area">
+                <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
+                <button type="submit" class="send-btn">
+                    <svg viewBox="0 0 24 24" fill="none" class="send-icon">
+                        <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
