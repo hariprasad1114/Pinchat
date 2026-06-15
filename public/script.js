@@ -6,6 +6,9 @@ import {
 import {
     getAuth, signInAnonymously, setPersistence, browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+    getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCssepOWIm1JBzKiDKTQ9g5YkD_XahET7Q",
@@ -21,6 +24,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 // DOM Elements
 const loginScreen = document.getElementById('login-screen');
@@ -35,6 +39,11 @@ const roomPinDisplay = document.getElementById('room-pin-display');
 const memberCountDisplay = document.getElementById('member-count');
 const typingIndicator = document.getElementById('typing-indicator');
 const leaveBtn = document.getElementById('leave-btn');
+const imageInput = document.getElementById('image-input');
+const imageUploadBtn = document.getElementById('image-upload-btn');
+const imagePreview = document.getElementById('image-preview');
+const cancelImageBtn = document.getElementById('cancel-image-btn');
+let selectedImageFile = null;
 
 // State
 let currentPin = null;
@@ -79,8 +88,12 @@ loginForm.addEventListener('submit', (e) => {
 chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const message = messageInput.value.trim();
-    if (message && currentPin) {
-        sendMessage(message);
+    if (currentPin) {
+        if (selectedImageFile) {
+            sendImageMessage(message || null);
+        } else if (message) {
+            sendMessage(message);
+        }
     }
 });
 
@@ -95,6 +108,36 @@ messageInput.addEventListener('input', () => {
 
 leaveBtn.addEventListener('click', () => {
     leaveRoom();
+});
+
+imageUploadBtn.addEventListener('click', () => {
+    imageInput.click();
+});
+
+imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image must be under 5MB.');
+        return;
+    }
+    selectedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        imagePreview.querySelector('img').src = ev.target.result;
+        imagePreview.classList.add('visible');
+    };
+    reader.readAsDataURL(file);
+});
+
+cancelImageBtn.addEventListener('click', () => {
+    selectedImageFile = null;
+    imageInput.value = '';
+    imagePreview.classList.remove('visible');
 });
 
 // Functions
@@ -189,6 +232,33 @@ async function sendMessage(text) {
     }
 }
 
+async function sendImageMessage(caption) {
+    messageInput.value = '';
+    updateTypingStatus(false);
+    const file = selectedImageFile;
+    selectedImageFile = null;
+    imageInput.value = '';
+    imagePreview.classList.remove('visible');
+
+    try {
+        const storageRef = ref(storage, `rooms/${currentPin}/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        await addDoc(collection(db, 'rooms', currentPin, 'messages'), {
+            type: 'image',
+            imageURL: downloadURL,
+            caption: caption,
+            sender: currentUsername,
+            uid: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Error sending image: ", e);
+        addSystemMessage("Failed to send image.");
+    }
+}
+
 async function updateTypingStatus(isTyping) {
     if (!currentPin || !currentUser) return;
 
@@ -226,12 +296,41 @@ function addMessageToUI(id, data, isMe) {
     const senderEl = document.createElement('div');
     senderEl.classList.add('sender-name');
     senderEl.textContent = isMe ? 'You' : data.sender;
-
-    const textEl = document.createElement('div');
-    textEl.textContent = data.text;
-
     messageEl.appendChild(senderEl);
-    messageEl.appendChild(textEl);
+
+    if (data.type === 'image') {
+        const imgContainer = document.createElement('div');
+        imgContainer.classList.add('image-container');
+
+        const img = document.createElement('img');
+        img.classList.add('chat-image');
+        img.src = data.imageURL;
+        img.alt = 'Shared image';
+        img.loading = 'lazy';
+        imgContainer.appendChild(img);
+
+        const downloadBtn = document.createElement('a');
+        downloadBtn.classList.add('download-btn');
+        downloadBtn.href = data.imageURL;
+        downloadBtn.download = `pinchat_image_${id}`;
+        downloadBtn.target = '_blank';
+        downloadBtn.title = 'Download image';
+        downloadBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        imgContainer.appendChild(downloadBtn);
+
+        messageEl.appendChild(imgContainer);
+
+        if (data.caption) {
+            const captionEl = document.createElement('div');
+            captionEl.classList.add('image-caption');
+            captionEl.textContent = data.caption;
+            messageEl.appendChild(captionEl);
+        }
+    } else {
+        const textEl = document.createElement('div');
+        textEl.textContent = data.text;
+        messageEl.appendChild(textEl);
+    }
 
     if (isMe) {
         const deleteBtn = document.createElement('div');

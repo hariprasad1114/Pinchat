@@ -468,6 +468,66 @@ body {
     border: 1px solid var(--glass-border);
 }
 
+/* Image Message */
+.image-container {
+    position: relative;
+    margin: -1rem -1.25rem 0;
+    border-radius: 1.5rem 1.5rem 0 0;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.message:not(.sent) .image-container {
+    border-radius: 1.5rem 0 0 0;
+}
+
+.chat-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.3);
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.chat-image:hover {
+    opacity: 0.95;
+}
+
+.download-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    text-decoration: none;
+}
+
+.image-container:hover .download-btn {
+    opacity: 1;
+}
+
+.download-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.image-caption {
+    padding-top: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
 #app {
     width: 100%;
     max-width: 1200px;
@@ -524,6 +584,71 @@ body {
     align-items: center;
     background: rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(4px);
+}
+
+/* Image Upload Button */
+.image-upload-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.image-upload-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Image Preview */
+.image-preview {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid var(--glass-border);
+    position: relative;
+}
+
+.image-preview.visible {
+    display: flex;
+}
+
+.image-preview img {
+    height: 60px;
+    width: auto;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    border: 1px solid var(--glass-border);
+}
+
+.cancel-image-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.cancel-image-btn:hover {
+    transform: scale(1.15);
 }
 
 .chat-input-area {
